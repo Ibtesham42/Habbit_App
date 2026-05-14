@@ -1,66 +1,88 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
-This is an **Expo/React Native** mobile application - a Habit Tracker app with full feature set including onboarding, challenges, streaks, analytics, achievements, and retention hooks.
+**Habit Tracker** - Expo/React Native mobile app for building daily habits through challenges, streaks, and rewards.
 
 ## Tech Stack
 
-- **Framework**: Expo SDK 54
-- **Runtime**: React Native 0.81.5
+- **Runtime**: Expo SDK 54, React Native 0.81.5
 - **Navigation**: React Navigation v7 (native-stack + bottom-tabs)
 - **State**: React Context API with usePersistence hooks
 - **Storage**: @react-native-async-storage/async-storage
-- **Animation**: react-native-reanimated
-
-## Commands
-
-```bash
-# Install dependencies (after package.json changes)
-npm install
-
-# Start development server
-npm start
-
-# Run on Android
-npm run android
-
-# Run on iOS
-npm run ios
-```
+- **Animation**: react-native-reanimated, expo-haptics
 
 ## Architecture
 
 ```
-App.js                    # Entry point with providers
+App.js                    # Entry with providers + DevPanel overlay
 src/
 ├── navigation/           # RootNavigator, MainTabs
-├── screens/              # 7 screens (Onboarding, Dashboard, HabitCreate, etc.)
-├── components/           # HabitCard, ProgressRing, CelebrationOverlay
+├── screens/              # 9 screens (Onboarding, Dashboard, Analytics, etc.)
+├── components/           # HabitCard, ProgressRing, CelebrationOverlay, DevPanel
 ├── context/              # HabitsContext, ChallengesContext, UserContext
 ├── hooks/                # usePersistence
-├── services/             # notificationService
-├── data/                 # challenges.js, achievements.js
-├── utils/                # dateUtils, streakCalculator
-└── theme/                # colors.js
+├── theme/                # colors (palette + shadow system)
+├── utils/                # dateUtils, streakCalculator, responsive
+└── data/                 # challenges, achievements definitions
 ```
 
-### Context Providers
+## State Management
 
-- **HabitsContext**: Manages habits, completion tracking, streaks, persistence
-- **ChallengesContext**: Active/completed challenges, achievements
-- **UserContext**: Preferences, onboarding state, notifications settings
+### HabitsContext
+- Manages habits array, todayLogs, completion tracking
+- Methods: addHabit, toggleHabit, incrementHabit, resetToday
+- Streaks calculated via streakCalculator utility
 
-### Screens
+### ChallengesContext
+- Active/completed challenges, achievements tracking
+- Methods: startChallenge, updateChallengeProgress, checkAchievements
 
-1. OnboardingScreen - Welcome flow with feature highlights
-2. ChallengeSetupScreen - Choose initial challenge
-3. DashboardScreen - Today's habits with progress ring
-4. HabitCreateScreen - Binary/volume habit creation
-5. HabitDetailScreen - Habit stats and history
-6. ActiveChallengeScreen - Challenge progress tracking
-7. AnalyticsScreen - Charts, streaks, leaderboard
-8. RewardsScreen - Achievements and badges
-9. SettingsScreen - Preferences and streak protection
+### UserContext
+- Preferences: notifications, sound, haptics, streakFreezes
+- onboardingComplete flag controls flow
+
+## Challenge & Reward Flow
+
+1. **Onboarding** → 4-step walkthrough explaining features
+2. **Challenge Setup** → Select 3/7/21/30 day challenge
+3. **Daily Tracking** → Toggle habits, build streaks
+4. **Challenge Completion** → Triggers celebration overlay, updates achievements
+
+## Responsive Design
+
+Use `src/utils/responsive.js` for device-aware styling:
+- `isSmallPhone` / `isTablet` breakpoints
+- `spacing`, `fontSize`, `borderRadius`, `iconSize` scale objects
+
+## Developer Testing
+
+**DevPanel** - Orange button (top-right). Contains:
+- Day simulation (complete today/yesterday/past dates)
+- Challenge simulation (start/complete challenges)
+- Reward triggers (streak milestone, all-complete, challenge complete)
+- Streak controls (increment/decrement/break)
+- Quick actions (toggle onboarding, reset data)
+- Status display (onboarding, challenges, achievements)
+
+## Design System
+
+`src/theme/colors.js` exports:
+- Primary palette (green-based)
+- Semantic colors (streak=orange, reward=purple, info=blue)
+- Shadow presets: `sm`, `md`, `lg`, `xl`
+- Progress gradient: 0→25→50→75→100
+
+## Commands
+
+```bash
+npm start        # Metro bundler
+npm run web      # Browser preview
+npm run android  # Android build
+```
+
+## Known Constraints
+
+- Package version warnings (expo-haptics, react-native-reanimated) - app functions but should update
+- No dark mode implementation yet
+- No authentication or cloud sync
