@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Animated, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useHabits } from '../context/HabitsContext';
 import { useChallenges } from '../context/ChallengesContext';
 import { colors } from '../theme/colors';
 import { getToday } from '../utils/dateUtils';
+import { spacing, fontSize, borderRadius, isSmallPhone, hitSlop } from '../utils/responsive';
 import ProgressRing from '../components/ProgressRing';
 import HabitCard from '../components/HabitCard';
 import CelebrationOverlay from '../components/CelebrationOverlay';
+
+const { width } = Dimensions.get('window');
 
 export default function DashboardScreen({ navigation }) {
   const { habits, todayLogs, toggleHabit, incrementHabit, getTodayProgress, resetToday } = useHabits();
@@ -114,69 +117,67 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.md,
   },
   title: {
-    fontSize: 32,
+    fontSize: fontSize.header,
     fontWeight: 'bold',
     color: colors.text,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: fontSize.md,
     color: colors.textSecondary,
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
   challengeBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.secondary,
-    marginHorizontal: 20,
-    marginBottom: 15,
-    padding: 12,
-    borderRadius: 12,
+    backgroundColor: colors.streak,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    ...colors.shadows.md,
   },
   challengeText: {
     flex: 1,
     color: '#fff',
     fontWeight: '600',
-    marginHorizontal: 10,
+    marginHorizontal: spacing.sm,
+    fontSize: fontSize.sm,
   },
   list: {
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
     paddingBottom: 100,
   },
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 60,
+    paddingTop: spacing.xxl,
   },
   emptyText: {
-    fontSize: 20,
+    fontSize: fontSize.xl,
     fontWeight: '600',
     color: colors.textSecondary,
-    marginTop: 15,
+    marginTop: spacing.md,
   },
   emptySubtext: {
-    fontSize: 14,
+    fontSize: fontSize.sm,
     color: colors.textMuted,
-    marginTop: 5,
+    marginTop: spacing.xs,
   },
   fab: {
     position: 'absolute',
-    right: 20,
+    right: spacing.lg,
     bottom: 30,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: isSmallPhone ? 54 : 60,
+    height: isSmallPhone ? 54 : 60,
+    borderRadius: 27,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    ...colors.shadows.lg,
   },
 });

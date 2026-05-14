@@ -97,11 +97,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 16,
     marginBottom: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    ...colors.shadows.md,
   },
   checkbox: {
     width: 32,
@@ -136,6 +132,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     marginRight: 10,
     overflow: 'hidden',
+    backgroundColor: colors.border,
   },
   progressFill: {
     height: '100%',
@@ -151,16 +148,18 @@ const styles = StyleSheet.create({
   streakBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF3E0',
+    backgroundColor: '#fff7ed',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
     marginRight: 8,
+    borderWidth: 1,
+    borderColor: colors.streakGlow,
   },
   streakText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: colors.secondary,
+    color: colors.streak,
     marginLeft: 2,
   },
   incrementBtn: {
@@ -170,5 +169,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
   },
 });

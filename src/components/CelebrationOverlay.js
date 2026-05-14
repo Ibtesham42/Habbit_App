@@ -46,7 +46,7 @@ export default function CelebrationOverlay({ visible, type, onHide }) {
           icon: 'flame',
           title: 'Streak Milestone!',
           subtitle: 'Amazing consistency! Keep it going!',
-          color: colors.secondary,
+          color: colors.streak,
         };
       case 'allComplete':
         return {
@@ -60,7 +60,14 @@ export default function CelebrationOverlay({ visible, type, onHide }) {
           icon: 'medal',
           title: 'Achievement Unlocked!',
           subtitle: 'You earned a new badge!',
-          color: '#FFD700',
+          color: colors.reward,
+        };
+      case 'challenge':
+        return {
+          icon: 'flag',
+          title: 'Challenge Complete!',
+          subtitle: 'You did it! Reward unlocked!',
+          color: colors.primary,
         };
       default:
         return {
@@ -105,9 +112,9 @@ export default function CelebrationOverlay({ visible, type, onHide }) {
                   left: Math.random() * width,
                   backgroundColor: [
                     colors.primary,
-                    colors.secondary,
-                    '#FFD700',
-                    '#9C27B0',
+                    colors.streak,
+                    colors.reward,
+                    colors.info,
                   ][Math.floor(Math.random() * 4)],
                   transform: [{ rotate: Math.random() * 360 + 'deg' }],
                 },

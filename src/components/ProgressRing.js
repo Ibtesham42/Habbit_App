@@ -24,7 +24,8 @@ export default function ProgressRing({ progress, size = 70, strokeWidth = 6 }) {
   });
 
   const getProgressColor = () => {
-    if (progress < 50) return colors.progress[0];
+    if (progress < 25) return colors.progress[0];
+    if (progress < 50) return colors.progress[25];
     if (progress < 75) return colors.progress[50];
     return colors.progress[100];
   };

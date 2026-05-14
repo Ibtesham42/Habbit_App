@@ -6,6 +6,7 @@ import { LineChart } from 'react-native-chart-kit';
 import { useHabits } from '../context/HabitsContext';
 import { colors } from '../theme/colors';
 import { getWeekDates, getMonthDates } from '../utils/dateUtils';
+import { spacing, fontSize, borderRadius, isSmallPhone, isTablet, responsiveWidth } from '../utils/responsive';
 
 const { width } = Dimensions.get('window');
 
@@ -47,7 +48,7 @@ export default function AnalyticsScreen() {
     backgroundGradientFrom: colors.surface,
     backgroundGradientTo: colors.surface,
     decimalPlaces: 0,
-    color: (opacity = 1) => `rgba(76, 175, 80, ${opacity})`,
+    color: (opacity = 1) => `rgba(34, 197, 94, ${opacity})`,
     labelColor: () => colors.textSecondary,
     style: { borderRadius: 16 },
     propsForDots: {
@@ -57,6 +58,8 @@ export default function AnalyticsScreen() {
     },
   };
 
+  const chartWidth = isTablet ? Math.min(width - 80, 600) : width - 60;
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -64,25 +67,33 @@ export default function AnalyticsScreen() {
         <Text style={styles.subtitle}>Track your progress</Text>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
-            <Ionicons name="leaf" size={24} color={colors.primary} />
+            <View style={[styles.statIcon, { backgroundColor: colors.primary + '20' }]}>
+              <Ionicons name="leaf" size={isSmallPhone ? 20 : 24} color={colors.primary} />
+            </View>
             <Text style={styles.statValue}>{stats.totalHabits}</Text>
             <Text style={styles.statLabel}>Active Habits</Text>
           </View>
           <View style={styles.statCard}>
-            <Ionicons name="checkmark-circle" size={24} color={colors.primary} />
+            <View style={[styles.statIcon, { backgroundColor: colors.primary + '20' }]}>
+              <Ionicons name="checkmark-circle" size={isSmallPhone ? 20 : 24} color={colors.primary} />
+            </View>
             <Text style={styles.statValue}>{stats.totalCompletions}</Text>
             <Text style={styles.statLabel}>Total Done</Text>
           </View>
           <View style={styles.statCard}>
-            <Ionicons name="flame" size={24} color={colors.secondary} />
+            <View style={[styles.statIcon, { backgroundColor: colors.streak + '20' }]}>
+              <Ionicons name="flame" size={isSmallPhone ? 20 : 24} color={colors.streak} />
+            </View>
             <Text style={styles.statValue}>{stats.totalStreaks}</Text>
             <Text style={styles.statLabel}>Combined Streaks</Text>
           </View>
           <View style={styles.statCard}>
-            <Ionicons name="trophy" size={24} color="#FFD700" />
+            <View style={[styles.statIcon, { backgroundColor: colors.reward + '20' }]}>
+              <Ionicons name="trophy" size={isSmallPhone ? 20 : 24} color={colors.reward} />
+            </View>
             <Text style={styles.statValue}>{stats.longestStreak}</Text>
             <Text style={styles.statLabel}>Best Streak</Text>
           </View>
@@ -93,8 +104,8 @@ export default function AnalyticsScreen() {
           <View style={styles.chartCard}>
             <LineChart
               data={weeklyData}
-              width={width - 60}
-              height={180}
+              width={chartWidth}
+              height={isSmallPhone ? 160 : 180}
               chartConfig={chartConfig}
               bezier
               style={styles.chart}
@@ -107,8 +118,8 @@ export default function AnalyticsScreen() {
           <View style={styles.chartCard}>
             <LineChart
               data={monthlyData}
-              width={width - 60}
-              height={180}
+              width={chartWidth}
+              height={isSmallPhone ? 160 : 180}
               chartConfig={chartConfig}
               bezier
               style={styles.chart}
@@ -118,19 +129,24 @@ export default function AnalyticsScreen() {
 
         <View style={styles.habitLeaderboard}>
           <Text style={styles.sectionTitle}>Habit Leaderboard</Text>
-          {habits
-            .sort((a, b) => (b.longestStreak || 0) - (a.longestStreak || 0))
-            .slice(0, 5)
-            .map((habit, index) => (
-              <View key={habit.id} style={styles.leaderboardItem}>
-                <Text style={styles.rank}>#{index + 1}</Text>
-                <View style={[styles.colorDot, { backgroundColor: habit.color }]} />
-                <Text style={styles.habitName}>{habit.name}</Text>
-                <Text style={styles.habitStreak}>
-                  <Ionicons name="flame" size={14} color={colors.secondary} /> {habit.longestStreak}
-                </Text>
-              </View>
-            ))}
+          {habits.length === 0 ? (
+            <Text style={styles.emptyText}>No habits yet</Text>
+          ) : (
+            habits
+              .sort((a, b) => (b.longestStreak || 0) - (a.longestStreak || 0))
+              .slice(0, 5)
+              .map((habit, index) => (
+                <View key={habit.id} style={styles.leaderboardItem}>
+                  <Text style={styles.rank}>#{index + 1}</Text>
+                  <View style={[styles.colorDot, { backgroundColor: habit.color }]} />
+                  <Text style={styles.habitName}>{habit.name}</Text>
+                  <View style={styles.streakBadge}>
+                    <Ionicons name="flame" size={14} color={colors.streak} />
+                    <Text style={styles.habitStreak}>{habit.longestStreak}</Text>
+                  </View>
+                </View>
+              ))
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -143,81 +159,101 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.md,
   },
   title: {
-    fontSize: 32,
+    fontSize: fontSize.header,
     fontWeight: 'bold',
     color: colors.text,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: fontSize.md,
     color: colors.textSecondary,
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
+  },
+  scrollContent: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xxl,
   },
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
-    marginTop: 10,
+    justifyContent: 'space-between',
+    marginTop: spacing.md,
   },
   statCard: {
-    width: '47%',
+    width: '48%',
     backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: borderRadius.lg,
+    padding: spacing.md,
     alignItems: 'center',
+    marginBottom: spacing.md,
+    ...colors.shadows.md,
+  },
+  statIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   statValue: {
-    fontSize: 24,
+    fontSize: fontSize.xxl,
     fontWeight: 'bold',
     color: colors.text,
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: fontSize.xs,
     color: colors.textSecondary,
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
   chartSection: {
-    marginTop: 24,
+    marginTop: spacing.xl,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: fontSize.lg,
     fontWeight: '600',
     color: colors.text,
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   chartCard: {
     backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: borderRadius.lg,
+    padding: spacing.md,
     alignItems: 'center',
     overflow: 'hidden',
+    ...colors.shadows.md,
   },
   chart: {
-    borderRadius: 16,
+    borderRadius: borderRadius.lg,
   },
   habitLeaderboard: {
-    marginTop: 24,
-    marginBottom: 30,
+    marginTop: spacing.xl,
+    marginBottom: spacing.lg,
+  },
+  emptyText: {
+    fontSize: fontSize.md,
+    color: colors.textMuted,
+    textAlign: 'center',
+    paddingVertical: spacing.xl,
   },
   leaderboardItem: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surface,
-    padding: 14,
-    borderRadius: 12,
-    marginBottom: 8,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.sm,
+    ...colors.shadows.sm,
   },
   rank: {
-    fontSize: 14,
+    fontSize: fontSize.sm,
     fontWeight: 'bold',
     color: colors.textMuted,
     width: 30,
@@ -226,17 +262,22 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   habitName: {
     flex: 1,
-    fontSize: 15,
+    fontSize: fontSize.md,
     fontWeight: '500',
     color: colors.text,
   },
+  streakBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
   habitStreak: {
-    fontSize: 14,
+    fontSize: fontSize.sm,
     fontWeight: '600',
-    color: colors.textSecondary,
+    color: colors.streak,
   },
 });

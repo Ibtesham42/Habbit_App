@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useChallenges } from '../context/ChallengesContext';
 import { useUser } from '../context/UserContext';
 import { colors } from '../theme/colors';
 import { CHALLENGES } from '../data/challenges';
+import { spacing, fontSize, borderRadius, isSmallPhone } from '../utils/responsive';
+
+const { width } = Dimensions.get('window');
 
 export default function ChallengeSetupScreen({ navigation }) {
   const [selectedChallenge, setSelectedChallenge] = useState(null);
@@ -33,16 +36,22 @@ export default function ChallengeSetupScreen({ navigation }) {
       ]}
       onPress={() => setSelectedChallenge(item.id)}
     >
-      <Text style={styles.badge}>{item.badge}</Text>
+      <View style={[styles.badgeContainer, { backgroundColor: item.color + '20' }]}>
+        <Text style={styles.badge}>{item.badge}</Text>
+      </View>
       <View style={styles.challengeInfo}>
         <Text style={styles.challengeName}>{item.name}</Text>
         <Text style={styles.challengeDesc}>{item.description}</Text>
-        <Text style={[styles.duration, { color: item.color }]}>
-          {item.duration} days
-        </Text>
+        <View style={styles.durationRow}>
+          <View style={[styles.durationBadge, { backgroundColor: item.color }]}>
+            <Text style={styles.durationText}>{item.duration} days</Text>
+          </View>
+        </View>
       </View>
       {selectedChallenge === item.id && (
-        <Ionicons name="checkmark-circle" size={28} color={item.color} />
+        <View style={[styles.checkCircle, { backgroundColor: item.color }]}>
+          <Ionicons name="checkmark" size={18} color="#fff" />
+        </View>
       )}
     </TouchableOpacity>
   );
@@ -61,11 +70,16 @@ export default function ChallengeSetupScreen({ navigation }) {
         keyExtractor={(item) => item.id}
         renderItem={renderChallenge}
         contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
       />
 
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.joinBtn, !selectedChallenge && styles.joinBtnDisabled]}
+          style={[
+            styles.joinBtn,
+            !selectedChallenge && styles.joinBtnDisabled,
+            selectedChallenge && { backgroundColor: CHALLENGES.find(c => c.id === selectedChallenge)?.color || colors.primary },
+          ]}
           onPress={handleJoinChallenge}
           disabled={!selectedChallenge}
         >
@@ -85,81 +99,106 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.md,
   },
   title: {
-    fontSize: 26,
+    fontSize: fontSize.xxl,
     fontWeight: 'bold',
     color: colors.text,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: fontSize.md,
     color: colors.textSecondary,
-    lineHeight: 22,
+    lineHeight: fontSize.md * 1.5,
   },
   list: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
   challengeCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surface,
-    padding: 16,
-    borderRadius: 16,
-    marginBottom: 12,
+    padding: spacing.lg,
+    borderRadius: borderRadius.lg,
+    marginBottom: spacing.md,
     borderWidth: 2,
     borderColor: 'transparent',
+    ...colors.shadows.md,
+  },
+  badgeContainer: {
+    width: isSmallPhone ? 56 : 64,
+    height: isSmallPhone ? 56 : 64,
+    borderRadius: borderRadius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.md,
   },
   badge: {
-    fontSize: 40,
-    marginRight: 16,
+    fontSize: isSmallPhone ? 28 : 32,
   },
   challengeInfo: {
     flex: 1,
   },
   challengeName: {
-    fontSize: 18,
+    fontSize: fontSize.lg,
     fontWeight: 'bold',
     color: colors.text,
   },
   challengeDesc: {
-    fontSize: 13,
+    fontSize: fontSize.sm,
     color: colors.textSecondary,
     marginTop: 2,
+    lineHeight: fontSize.sm * 1.4,
   },
-  duration: {
-    fontSize: 14,
+  durationRow: {
+    flexDirection: 'row',
+    marginTop: spacing.sm,
+  },
+  durationBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.sm,
+  },
+  durationText: {
+    fontSize: fontSize.xs,
     fontWeight: '600',
-    marginTop: 6,
+    color: '#fff',
+  },
+  checkCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   footer: {
-    paddingHorizontal: 20,
-    paddingBottom: 30,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xl,
   },
   joinBtn: {
-    backgroundColor: colors.primary,
-    padding: 16,
-    borderRadius: 16,
+    padding: spacing.lg,
+    borderRadius: borderRadius.lg,
     alignItems: 'center',
+    ...colors.shadows.md,
   },
   joinBtnDisabled: {
     backgroundColor: colors.border,
   },
   joinBtnText: {
-    fontSize: 18,
+    fontSize: fontSize.lg,
     fontWeight: 'bold',
     color: '#fff',
   },
   skipBtn: {
     alignItems: 'center',
-    marginTop: 15,
+    marginTop: spacing.md,
   },
   skipBtnText: {
-    fontSize: 16,
+    fontSize: fontSize.md,
     color: colors.textSecondary,
   },
 });

@@ -1,36 +1,63 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Animated, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useUser } from '../context/UserContext';
 import { colors } from '../theme/colors';
+import { spacing, fontSize, borderRadius, iconSize, isSmallPhone } from '../utils/responsive';
 
 const { width } = Dimensions.get('window');
 
-const slides = [
+const features = [
   {
-    icon: 'leaf',
-    title: 'Build Better Habits',
-    subtitle: 'Transform your daily routine with simple, achievable goals',
+    icon: 'checkmark-circle',
+    title: 'Daily Habits',
+    description: 'Create simple habits you want to build. Track them daily with just one tap.',
+    color: colors.primary,
   },
   {
     icon: 'flame',
-    title: 'Stay Consistent',
-    subtitle: 'Track your streaks and watch your progress grow',
+    title: 'Build Streaks',
+    description: 'Each day you complete a habit, your streak grows. Never break the chain!',
+    color: colors.streak,
+  },
+  {
+    icon: 'flag',
+    title: '3-Day Challenge',
+    description: 'Start with a 3-day challenge to build momentum. Complete it to unlock rewards!',
+    color: colors.info,
   },
   {
     icon: 'trophy',
-    title: 'Achieve Your Goals',
-    subtitle: 'Complete challenges and earn rewards for your dedication',
+    title: 'Earn Rewards',
+    description: 'Unlock achievements and badges for your consistency. Share your progress!',
+    color: colors.reward,
   },
 ];
+
+const featureIcons = {
+  'checkmark-circle': '✓',
+  'flame': '🔥',
+  'flag': '🚩',
+  'trophy': '🏆',
+};
 
 export default function OnboardingScreen({ navigation }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { setOnboardingComplete } = useUser();
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(slideAnim, {
+      toValue: currentSlide,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [currentSlide]);
 
   const handleNext = () => {
-    if (currentSlide < slides.length - 1) {
+    if (currentSlide < features.length) {
       setCurrentSlide(currentSlide + 1);
     } else {
       setOnboardingComplete();
@@ -43,35 +70,112 @@ export default function OnboardingScreen({ navigation }) {
     navigation.replace('Main');
   };
 
+  const handlePrev = () => {
+    if (currentSlide > 0) {
+      setCurrentSlide(currentSlide - 1);
+    }
+  };
+
+  const handleDotPress = (index) => {
+    setCurrentSlide(index);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <TouchableOpacity style={styles.skipBtn} onPress={handleSkip}>
         <Text style={styles.skipText}>Skip</Text>
       </TouchableOpacity>
 
-      <View style={styles.content}>
-        <View style={styles.iconContainer}>
-          <Ionicons name={slides[currentSlide].icon} size={100} color={colors.primary} />
+      <Animated.View
+        style={[
+          styles.iconContainer,
+          {
+            transform: [
+              {
+                scale: slideAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [1, 0.9],
+                }),
+              },
+            ],
+          },
+        ]}
+      >
+        <View style={[styles.iconCircle, { backgroundColor: features[currentSlide]?.color || colors.primary }]}>
+          <Text style={styles.featureEmoji}>
+            {featureIcons[features[currentSlide]?.icon] || '✓'}
+          </Text>
         </View>
-        <Text style={styles.title}>{slides[currentSlide].title}</Text>
-        <Text style={styles.subtitle}>{slides[currentSlide].subtitle}</Text>
+      </Animated.View>
+
+      <View style={styles.content}>
+        <Animated.Text
+          style={[
+            styles.title,
+            {
+              opacity: slideAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [1, 0],
+              }),
+            },
+          ]}
+        >
+          {features[currentSlide]?.title || 'Welcome!'}
+        </Animated.Text>
+        <Animated.Text
+          style={[
+            styles.subtitle,
+            {
+              opacity: slideAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [1, 0],
+              }),
+            },
+          ]}
+        >
+          {features[currentSlide]?.description}
+        </Animated.Text>
       </View>
 
       <View style={styles.pagination}>
-        {slides.map((_, index) => (
-          <View
+        {features.map((_, index) => (
+          <TouchableOpacity
             key={index}
-            style={[styles.dot, currentSlide === index && styles.dotActive]}
-          />
+            onPress={() => handleDotPress(index)}
+            style={styles.dotButton}
+          >
+            <View
+              style={[
+                styles.dot,
+                currentSlide === index && styles.dotActive,
+                currentSlide === index && { backgroundColor: features[index]?.color },
+              ]}
+            />
+          </TouchableOpacity>
         ))}
       </View>
 
-      <TouchableOpacity style={styles.nextBtn} onPress={handleNext}>
-        <Text style={styles.nextBtnText}>
-          {currentSlide === slides.length - 1 ? 'Get Started' : 'Next'}
-        </Text>
-        <Ionicons name="arrow-forward" size={20} color="#fff" />
-      </TouchableOpacity>
+      <View style={styles.footer}>
+        {currentSlide > 0 && (
+          <TouchableOpacity style={styles.prevBtn} onPress={handlePrev}>
+            <Ionicons name="arrow-back" size={20} color={colors.text} />
+            <Text style={styles.prevBtnText}>Back</Text>
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity
+          style={[
+            styles.nextBtn,
+            { backgroundColor: features[currentSlide]?.color || colors.primary },
+          ]}
+          onPress={handleNext}
+        >
+          <Text style={styles.nextBtnText}>
+            {currentSlide === features.length - 1 ? 'Get Started' : 'Next'}
+          </Text>
+          <Ionicons name="arrow-forward" size={20} color="#fff" />
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
@@ -80,80 +184,116 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+    paddingHorizontal: spacing.lg,
   },
   skipBtn: {
     position: 'absolute',
-    top: 60,
-    right: 20,
+    top: spacing.xl + 10,
+    right: spacing.lg,
     zIndex: 10,
+    padding: spacing.sm,
   },
   skipText: {
-    fontSize: 16,
+    fontSize: fontSize.md,
     color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: spacing.xxl,
+  },
+  iconCircle: {
+    width: isSmallPhone ? 120 : 140,
+    height: isSmallPhone ? 120 : 140,
+    borderRadius: isSmallPhone ? 60 : 70,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+  },
+  featureEmoji: {
+    fontSize: isSmallPhone ? 48 : 56,
   },
   content: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 40,
-  },
-  iconContainer: {
-    width: 180,
-    height: 180,
-    borderRadius: 90,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 40,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    paddingHorizontal: spacing.md,
   },
   title: {
-    fontSize: 28,
+    fontSize: fontSize.header,
     fontWeight: 'bold',
     color: colors.text,
     textAlign: 'center',
-    marginBottom: 15,
+    marginBottom: spacing.md,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: fontSize.lg,
     color: colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: fontSize.lg * 1.6,
+    paddingHorizontal: spacing.md,
   },
   pagination: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 40,
+    alignItems: 'center',
+    marginBottom: spacing.xl,
+    gap: spacing.sm,
+  },
+  dotButton: {
+    padding: spacing.xs,
   },
   dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: isSmallPhone ? 8 : 10,
+    height: isSmallPhone ? 8 : 10,
+    borderRadius: borderRadius.round,
     backgroundColor: colors.border,
-    marginHorizontal: 5,
   },
   dotActive: {
-    backgroundColor: colors.primary,
-    width: 30,
+    width: isSmallPhone ? 24 : 28,
+    height: isSmallPhone ? 8 : 10,
+    borderRadius: borderRadius.sm,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: spacing.xl,
+    gap: spacing.md,
+  },
+  prevBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: spacing.xs,
+  },
+  prevBtnText: {
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    color: colors.text,
   },
   nextBtn: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.primary,
-    marginHorizontal: 20,
-    marginBottom: 40,
-    padding: 16,
-    borderRadius: 16,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.lg,
+    gap: spacing.sm,
   },
   nextBtnText: {
-    fontSize: 18,
+    fontSize: fontSize.lg,
     fontWeight: 'bold',
     color: '#fff',
-    marginRight: 8,
   },
 });

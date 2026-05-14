@@ -7,6 +7,7 @@ import { HabitsProvider } from './src/context/HabitsContext';
 import { ChallengesProvider } from './src/context/ChallengesContext';
 import { UserProvider } from './src/context/UserContext';
 import RootNavigator from './src/navigation/RootNavigator';
+import DevPanel from './src/components/DevPanel';
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
             <ChallengesProvider>
               <RootNavigator />
               <StatusBar style="dark" />
+              <DevPanel />
             </ChallengesProvider>
           </HabitsProvider>
         </UserProvider>
