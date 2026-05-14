@@ -1,0 +1,58 @@
+export const ACHIEVEMENTS = [
+  {
+    id: 'first-habit',
+    name: 'Getting Started',
+    description: 'Create your first habit',
+    icon: '🎯',
+    requirement: { type: 'habitsCreated', value: 1 },
+  },
+  {
+    id: 'habit-collector',
+    name: 'Habit Collector',
+    description: 'Create 5 habits',
+    icon: '📚',
+    requirement: { type: 'habitsCreated', value: 5 },
+  },
+  {
+    id: 'week-streak',
+    name: 'Week Warrior',
+    description: 'Maintain a 7-day streak',
+    icon: '🔥',
+    requirement: { type: 'streak', value: 7 },
+  },
+  {
+    id: 'month-streak',
+    name: 'Monthly Master',
+    description: 'Maintain a 30-day streak',
+    icon: '⭐',
+    requirement: { type: 'streak', value: 30 },
+  },
+  {
+    id: 'century-streak',
+    name: 'Century Builder',
+    description: 'Maintain a 100-day streak',
+    icon: '💎',
+    requirement: { type: 'streak', value: 100 },
+  },
+  {
+    id: 'perfect-week',
+    name: 'Perfect Week',
+    description: 'Complete all habits for 7 days',
+    icon: '✨',
+    requirement: { type: 'perfectDays', value: 7 },
+  },
+  {
+    id: 'challenge-starter',
+    name: 'Challenge Accepted',
+    description: 'Complete your first challenge',
+    icon: '🏅',
+    requirement: { type: 'challengesCompleted', value: 1 },
+  },
+  {
+    id: 'challenge-master',
+    name: 'Challenge Champion',
+    description: 'Complete 3 challenges',
+    icon: '🎖️',
+    requirement: { type: 'challengesCompleted', value: 3 },
+  },
+];
